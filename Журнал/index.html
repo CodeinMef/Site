@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал МТК</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        select, input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        .role-toggle {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            width: 20%;
+        }
+        
+        .role-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px; /* Ширина иконки */
+            height: 20px; /* Высота иконки */
+            background-color: #ffffff; /* Цвет фона иконки */
+            border: none;
+            border-radius: 4px; /* Скругление углов */
+            color: white; /* Цвет текста иконки */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginForm">
+        <h1 id="formTitle">Вход для студентов</h1>
+        <button class="role-toggle" id="roleToggle">Вход для преподавателей</button>
+        <form id="form">
+            <input type="text" id="surname" placeholder="Фамилия" required lang="rus">
+            <div class="password-container">
+                <input type="password" id="password" placeholder="Пароль" required>
+                <button type="button" class="toggle-password" id="togglePassword">👁️</button>
+            </div>
+            <div id="group_name" style="display: block;">
+                <input type="text" id="group" placeholder="Группа" required lang="rus">
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+
+    <script>
+        const roleToggle = document.getElementById('roleToggle');
+        const formTitle = document.getElementById('formTitle');
+        const group_name = document.getElementById('group_name');
+        const passwordField = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        roleToggle.addEventListener('click', function() {
+            if (formTitle.innerText === 'Вход для студентов') {
+                formTitle.innerText = 'Вход для преподавателей';
+                group_name.style.display = 'none';
+                passwordField.setAttribute('type', 'password'); // Скрываем пароль для преподавателя
+                togglePassword.innerText = '👁️'; // Иконка для показа пароля
+                roleToggle.innerText = 'Вход для студентов';
+            } else {
+                formTitle.innerText = 'Вход для студентов';
+                group_name.style.display = 'block';
+                passwordField.setAttribute('type', 'password'); // Скрываем пароль для студента
+                togglePassword.innerText = '👁️'; // Иконка для показа пароля
+                roleToggle.innerText = 'Вход для преподавателей';
+            }
+        });
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            togglePassword.innerText = type === 'password' ? '👁️' : '🙈'; // Меняем иконку
+        });
+
+        document.getElementById('form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+            const surname = document.getElementById('surname').value;
+            const password = passwordField.value;
+            const group = document.getElementById('group').value; // Получаем значение группы
+            const role = formTitle.innerText.includes('студентов') ? 'student' : 'teacher';
+
+            // Отправляем данные на сервер для проверки
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ role, surname, password, group: role === 'student' ? group : undefined }), // Передаем значение группы только для студентов
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+                return response.text();
+            })
+            .then(data => {
+                alert(data); // Показываем сообщение о успешном входе
+                if (role === 'student') {
+                    window.location.href = 'subjects.html'; // Перенаправление для студента
+                } else if (role === 'teacher') {
+                    window.location.href = 'add_subject.html'; // Перенаправление для преподавателя
+                }
+            })
+            .catch(error => {
+                alert(error.message); // Показываем сообщение об ошибке
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить предмет</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Добавить новый предмет</h1>
+    <form id="subjectForm">
+        <label for="subjectName">Название предмета:</label>
+        <input type="text" id="subjectName" required>
+        <br>
+        <label for="subjectGrade">Оценка:</label>
+        <input type="number" id="subjectGrade" required>
+        <br>
+        <button type="submit">Сохранить предмет</button>
+    </form>
+    <script>
+        document.getElementById('subjectForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+            const name = document.getElementById('subjectName').value;
+            const grade = document.getElementById('subjectGrade').value;
+
+            // Здесь вы можете отправить данные на сервер или сохранить их в локальном хранилище
+            console.log('Предмет добавлен:', { name, grade });
+
+            // После сохранения можно перенаправить на главную страницу
+            window.location.href = 'index.html'; // Переход на главную страницу
+        });
+    </script>
+</body>
+</html>
